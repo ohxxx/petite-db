@@ -1,1 +1,2 @@
-export const xxx = 'xxx'
+import PetiteDB from './core'
+export default PetiteDB
