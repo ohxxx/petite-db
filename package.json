@@ -1,6 +1,6 @@
 {
   "name": "petite-db",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "license": "MIT",
   "author": "",
@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/xxxDeveloper/petite-db.git"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "vite",
     "test": "vitest",
