@@ -4,12 +4,14 @@
   "description": "",
   "license": "MIT",
   "author": "",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xxxDeveloper/petite-db.git"
   },
   "main": "index.js",
   "scripts": {
+    "dev": "vite",
     "test": "vitest",
     "build": "rm -rf dist && tsup"
   },
@@ -19,6 +21,7 @@
   "homepage": "https://github.com/xxxDeveloper/petite-db#readme",
   "devDependencies": {
     "@antfu/eslint-config": "^0.19.4",
+    "@types/node": "^18.0.0",
     "eslint": "^8.15.0",
     "tsup": "^5.12.7",
     "typescript": "^4.6.4",
