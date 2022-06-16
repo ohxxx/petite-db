@@ -1,0 +1,64 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Petite DB</title>
+</head>
+
+<body>
+  <script type="module">
+    import PetiteDB from '/dist/index.js'
+    window.db = new PetiteDB('xxx', 'xxxStore')
+  </script>
+
+  <script>
+    function addData() {
+      window.db.setItem('test1', 'xxx')
+      window.db.setItem('test2', {
+        name: 'xxx',
+        age: '12',
+        address: 'shanghai',
+      })
+      window.db.setItem('test3', [1, 2, 3, 4, 5, 6])
+      window.db.setItem('test4', new ArrayBuffer(10))
+    }
+
+    async function getData() {
+      const test1 = await window.db.getItem('test1')
+      console.log('xxx#getData 【test1】', test1);
+      const test2 = await window.db.getItem('test2')
+      console.log('xxx#getData 【test2】', test1);
+      const test3 = await window.db.getItem('test3')
+      console.log('xxx#getData 【test3】', test3);
+      window.db.getItem('test4').then((res) => {
+        console.log('xxx#test4', res);
+      })
+      const test5 = await window.db.getItem('test5')
+      console.log('xxx#getData 【test5】', test5);
+    }
+
+    function removeData() {
+      window.db.removeItem('test1')
+    }
+
+    function clearData() {
+      window.db.clear()
+    }
+
+    function getAllKeys() {
+      window.db.keys().then((res) => {
+        console.log('xxx#getAllKeys', res);
+      })
+    }
+  </script>
+
+  <button onclick="addData()">添加数据</button>
+  <button onclick="getData()">获取数据</button>
+  <button onclick="removeData()">删除数据</button>
+  <button onclick="clearData()">清空数据</button>
+  <button onclick="getAllKeys()">获取所有key</button>
+
+</body>
+
+</html>
