@@ -1,58 +1,66 @@
-class PetiteDB {
-  #db: any
-  #storeName = 'petiteStore'
+import type { Base, IGetResult, IInitParams, IInitResult, IKeysResult, TValueType } from './types'
 
-  constructor(dbName: string, storeName: string) {
-    this.#init(dbName, storeName)
+class PetiteDB implements Base {
+  #db: IDBDatabase | null
+  #storeName: string
+
+  constructor({
+    dbName = 'petiteDB',
+    storeName = 'petiteStore',
+  }: Partial<IInitParams>) {
+    this.#db = null
+    this.#storeName = storeName
+    this.#init({ dbName, storeName })
   }
 
-  #init(dbName = 'petiteDB', storeName = 'petiteStore') {
+  #init({ dbName, storeName }: IInitParams) {
     return new Promise((resolve, reject) => {
-      if (window.indexedDB) {
-        this.#db = window.indexedDB.open(dbName, 1)
-        this.#storeName = storeName
-        this.#db.onupgradeneeded = (e: any) => {
-          this.#db = e.target.result
-          if (!this.#db.objectStoreNames.contains(storeName)) {
-            this.#db.createObjectStore(storeName, {
-              keyPath: 'key',
-            })
-          }
+      if (window?.indexedDB) {
+        const req = window.indexedDB.open(dbName, 1) as IDBOpenDBRequest
+        req.onupgradeneeded = (e: IDBVersionChangeEvent) => {
+          const { result } = e.target as IInitResult
+          const db = result
+          if (!db.objectStoreNames.contains(storeName))
+            db.createObjectStore(storeName, { keyPath: 'key' })
         }
-        this.#db.onsuccess = (e: any) => {
-          this.#db = e.target.result
+        req.onsuccess = (e: Event) => {
+          const { result } = e.target as IInitResult
+          this.#db = result
           resolve(this)
         }
-        this.#db.onerror = (e: unknown) => reject(e)
+        req.onerror = (e: unknown) => reject(e)
       }
     })
   }
 
-  setItem(key: string, value: any) {
+  setItem(keyName: string, keyValue: TValueType) {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db.transaction([this.#storeName], 'readwrite')
+      const transaction = this.#db!.transaction([this.#storeName], 'readwrite')
       const store = transaction.objectStore(this.#storeName)
-      const request = store.put({ key, value })
+      const request = store.put({ key: keyName, value: keyValue })
       request.onsuccess = (e: unknown) => resolve(e)
       request.onerror = (e: unknown) => reject(e)
     })
   }
 
-  getItem(key: string) {
+  getItem(keyName: string) {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db.transaction([this.#storeName], 'readonly')
+      const transaction = this.#db!.transaction([this.#storeName], 'readonly')
       const store = transaction.objectStore(this.#storeName)
-      const request = store.get(key)
-      request.onsuccess = (e: any) => resolve(e.target.result)
+      const request = store.get(keyName)
+      request.onsuccess = (e: Event) => {
+        const { result } = e.target as IGetResult
+        resolve(result)
+      }
       request.onerror = (e: unknown) => reject(e)
     })
   }
 
-  removeItem(key: string) {
+  removeItem(keyName: string) {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db.transaction([this.#storeName], 'readwrite')
+      const transaction = this.#db!.transaction([this.#storeName], 'readwrite')
       const store = transaction.objectStore(this.#storeName)
-      const request = store.delete(key)
+      const request = store.delete(keyName)
       request.onsuccess = (e: unknown) => resolve(e)
       request.onerror = (e: unknown) => reject(e)
     })
@@ -60,7 +68,7 @@ class PetiteDB {
 
   clear() {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db.transaction([this.#storeName], 'readwrite')
+      const transaction = this.#db!.transaction([this.#storeName], 'readwrite')
       const store = transaction.objectStore(this.#storeName)
       const request = store.clear()
       request.onsuccess = (e: unknown) => resolve(e)
@@ -70,10 +78,13 @@ class PetiteDB {
 
   keys() {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db.transaction([this.#storeName], 'readonly')
+      const transaction = this.#db!.transaction([this.#storeName], 'readonly')
       const store = transaction.objectStore(this.#storeName)
       const request = store.getAllKeys()
-      request.onsuccess = (e: any) => resolve(e.target.result)
+      request.onsuccess = (e: Event) => {
+        const { result } = e.target as IKeysResult
+        resolve(result)
+      }
       request.onerror = (e: unknown) => reject(e)
     })
   }

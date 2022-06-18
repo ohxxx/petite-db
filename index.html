@@ -9,26 +9,28 @@
 <body>
   <script type="module">
     import PetiteDB from '/dist/index.js'
-    window.db = new PetiteDB('xxx', 'xxxStore')
+    window.db = new PetiteDB({ dbName: 'xxx', storeName: 'xxxStore' });
   </script>
 
   <script>
     function addData() {
-      window.db.setItem('test1', 'xxx')
+      window.db.setItem('test1', 'test1')
       window.db.setItem('test2', {
-        name: 'xxx',
-        age: '12',
+        name: 'test2',
         address: 'shanghai',
       })
       window.db.setItem('test3', [1, 2, 3, 4, 5, 6])
       window.db.setItem('test4', new ArrayBuffer(10))
+      window.db.setItem('test5', null)
+      window.db.setItem('test5', undefined)
+      window.db.setItem('test5', 'xxx')
     }
 
     async function getData() {
       const test1 = await window.db.getItem('test1')
       console.log('xxx#getData 【test1】', test1);
       const test2 = await window.db.getItem('test2')
-      console.log('xxx#getData 【test2】', test1);
+      console.log('xxx#getData 【test2】', test2);
       const test3 = await window.db.getItem('test3')
       console.log('xxx#getData 【test3】', test3);
       window.db.getItem('test4').then((res) => {
