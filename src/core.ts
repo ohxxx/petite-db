@@ -15,7 +15,10 @@ class PetiteDB implements Base {
 
   #init({ dbName, storeName }: IInitParams) {
     return new Promise((resolve, reject) => {
-      if (window?.indexedDB) {
+      if (this.#db) {
+        resolve(this)
+      }
+      else {
         const req = window.indexedDB.open(dbName, 1) as IDBOpenDBRequest
         req.onupgradeneeded = (e: IDBVersionChangeEvent) => {
           const { result } = e.target as IInitResult
@@ -35,9 +38,10 @@ class PetiteDB implements Base {
 
   setItem(keyName: string, keyValue: TValueType) {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db!.transaction([this.#storeName], 'readwrite')
-      const store = transaction.objectStore(this.#storeName)
-      const request = store.put({ key: keyName, value: keyValue })
+      const request = this.#db!.transaction([this.#storeName], 'readwrite')
+        .objectStore(this.#storeName)
+        .put({ key: keyName, value: keyValue })
+
       request.onsuccess = (e: unknown) => resolve(e)
       request.onerror = (e: unknown) => reject(e)
     })
@@ -45,9 +49,10 @@ class PetiteDB implements Base {
 
   getItem(keyName: string) {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db!.transaction([this.#storeName], 'readonly')
-      const store = transaction.objectStore(this.#storeName)
-      const request = store.get(keyName)
+      const request = this.#db!.transaction([this.#storeName], 'readonly')
+        .objectStore(this.#storeName)
+        .get(keyName)
+
       request.onsuccess = (e: Event) => {
         const { result } = e.target as IGetResult
         resolve(result)
@@ -58,9 +63,10 @@ class PetiteDB implements Base {
 
   removeItem(keyName: string) {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db!.transaction([this.#storeName], 'readwrite')
-      const store = transaction.objectStore(this.#storeName)
-      const request = store.delete(keyName)
+      const request = this.#db!.transaction([this.#storeName], 'readwrite')
+        .objectStore(this.#storeName)
+        .delete(keyName)
+
       request.onsuccess = (e: unknown) => resolve(e)
       request.onerror = (e: unknown) => reject(e)
     })
@@ -68,9 +74,10 @@ class PetiteDB implements Base {
 
   clear() {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db!.transaction([this.#storeName], 'readwrite')
-      const store = transaction.objectStore(this.#storeName)
-      const request = store.clear()
+      const request = this.#db!.transaction([this.#storeName], 'readwrite')
+        .objectStore(this.#storeName)
+        .clear()
+
       request.onsuccess = (e: unknown) => resolve(e)
       request.onerror = (e: unknown) => reject(e)
     })
@@ -78,9 +85,10 @@ class PetiteDB implements Base {
 
   keys() {
     return new Promise((resolve, reject) => {
-      const transaction = this.#db!.transaction([this.#storeName], 'readonly')
-      const store = transaction.objectStore(this.#storeName)
-      const request = store.getAllKeys()
+      const request = this.#db!.transaction([this.#storeName], 'readonly')
+        .objectStore(this.#storeName)
+        .getAllKeys()
+
       request.onsuccess = (e: Event) => {
         const { result } = e.target as IKeysResult
         resolve(result)
