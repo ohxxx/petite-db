@@ -5,33 +5,36 @@ export interface Base {
    *
    * @param keyName The name of the key to be used in the database
    * @param keyValue The value of the key to be used in the database
+   * @param callback The callback function to be executed after the key is added to the database
    */
-  setItem(keyName: string, keyValue: TValueType): void
+  setItem(keyName: string, keyValue: TValueType, callback?: Function): void
   /**
    * Accepts a key name as a parameter and returns the value of the corresponding key name
    *
    * @param keyName The name of the key to be used in the database
+   * @param callback The callback function to be executed after the key is retrieved from the database
    */
-  getItem(keyName: string): TValueType
+  getItem(keyName: string, callback?: Function): TValueType
   /**
    * Accepting a key name as an argument will delete that key name (if it exists) from the given database.
    * If there is no item matching the given key name, this method will do nothing.
    *
    * @param keyName The name of the key to be used in the database
+   * @param callback The callback function to be executed after the key is deleted from the database
    */
-  removeItem(keyName: string): TValueType
+  removeItem(keyName: string, callback?: Function): void
   /**
    * Call it to clear all key values stored in the database.
    *
-   * @returns Returns a Promise that resolves when the database is cleared.
+   * @param callback The callback function to be executed after the database is cleared
    */
-  clear(): void
+  clear(callback?: Function): void
   /**
    * Call it to return all the keys stored in the database
    *
-   * @returns Returns a Promise that resolves when the keys are retrieved.
+   * @param callback The callback function to be executed after the keys are retrieved
    */
-  keys(): string[] | unknown
+  keys(callback?: Function): string[] | unknown
 }
 /**
  * All value types
@@ -63,8 +66,16 @@ export interface IInitParams {
   storeName: string
 }
 
-export type IInitResult = EventTarget & { result: IDBDatabase }
+export type IResult<T> = EventTarget & { result: T }
 
-export type IGetResult = EventTarget & { result: TValueType }
+export type IInitResult = IResult<IDBDatabase>
 
-export type IKeysResult = EventTarget & { result: string[] }
+export type IGetResult = IResult<TValueType>
+
+export type IKeysResult = IResult<string[]>
+
+export type IMode = 'readwrite' | 'readonly'
+
+export type ISuccess<T> = (e: IResult<T>) => void
+
+export type IEvent = (e: Event) => void

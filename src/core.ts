@@ -1,4 +1,4 @@
-import type { Base, IGetResult, IInitParams, IInitResult, IKeysResult, TValueType } from './types'
+import type { Base, IEvent, IGetResult, IInitParams, IInitResult, IKeysResult, IMode, TValueType } from './types'
 
 class PetiteDB implements Base {
   #db: IDBDatabase | null
@@ -36,65 +36,68 @@ class PetiteDB implements Base {
     })
   }
 
-  setItem(keyName: string, keyValue: TValueType) {
+  #read(mode: IMode, request: Function, callback?: Function) {
     return new Promise((resolve, reject) => {
-      const request = this.#db!.transaction([this.#storeName], 'readwrite')
-        .objectStore(this.#storeName)
-        .put({ key: keyName, value: keyValue })
-
-      request.onsuccess = (e: unknown) => resolve(e)
-      request.onerror = (e: unknown) => reject(e)
+      const isFunction = (value: unknown) => value && typeof value === 'function'
+      const txn = this.#db!.transaction([this.#storeName], mode).objectStore(this.#storeName)
+      const success = (result: unknown) => {
+        if (isFunction(callback))
+          callback?.(null, result)
+        resolve(result)
+      }
+      const error = (ev: Event) => {
+        if (isFunction(callback))
+          callback?.(ev)
+        reject(ev)
+      }
+      return request(txn, success, error)
     })
   }
 
-  getItem(keyName: string) {
-    return new Promise((resolve, reject) => {
-      const request = this.#db!.transaction([this.#storeName], 'readonly')
-        .objectStore(this.#storeName)
-        .get(keyName)
+  setItem(keyName: string, keyValue: TValueType, callback?: Function) {
+    return this.#read('readwrite', (transaction: IDBObjectStore, success: Function, error: IEvent) => {
+      const request = transaction.put({ key: keyName, value: keyValue })
+      request.onsuccess = (e: Event) => success(e)
+      request.onerror = (e: Event) => error(e)
+    }, callback)
+  }
 
+  getItem(keyName: string, callback?: Function) {
+    return this.#read('readonly', (transaction: IDBObjectStore, success: Function, error: IEvent) => {
+      const request = transaction.get(keyName)
       request.onsuccess = (e: Event) => {
         const { result } = e.target as IGetResult
-        resolve(result)
+        success(result)
       }
-      request.onerror = (e: unknown) => reject(e)
-    })
+      request.onerror = error
+    }, callback)
   }
 
-  removeItem(keyName: string) {
-    return new Promise((resolve, reject) => {
-      const request = this.#db!.transaction([this.#storeName], 'readwrite')
-        .objectStore(this.#storeName)
-        .delete(keyName)
-
-      request.onsuccess = (e: unknown) => resolve(e)
-      request.onerror = (e: unknown) => reject(e)
-    })
+  removeItem(keyName: string, callback?: Function) {
+    return this.#read('readwrite', (transaction: IDBObjectStore, success: IEvent, error: IEvent) => {
+      const request = transaction.delete(keyName)
+      request.onsuccess = success
+      request.onerror = error
+    }, callback)
   }
 
-  clear() {
-    return new Promise((resolve, reject) => {
-      const request = this.#db!.transaction([this.#storeName], 'readwrite')
-        .objectStore(this.#storeName)
-        .clear()
-
-      request.onsuccess = (e: unknown) => resolve(e)
-      request.onerror = (e: unknown) => reject(e)
-    })
+  clear(callback?: Function) {
+    return this.#read('readwrite', (transaction: IDBObjectStore, success: IEvent, error: IEvent) => {
+      const request = transaction.clear()
+      request.onsuccess = success
+      request.onerror = error
+    }, callback)
   }
 
-  keys() {
-    return new Promise((resolve, reject) => {
-      const request = this.#db!.transaction([this.#storeName], 'readonly')
-        .objectStore(this.#storeName)
-        .getAllKeys()
-
+  keys(callback?: Function) {
+    return this.#read('readonly', (transaction: IDBObjectStore, success: Function, error: IEvent) => {
+      const request = transaction.getAllKeys()
       request.onsuccess = (e: Event) => {
         const { result } = e.target as IKeysResult
-        resolve(result)
+        success(result)
       }
-      request.onerror = (e: unknown) => reject(e)
-    })
+      request.onerror = error
+    }, callback)
   }
 }
 
