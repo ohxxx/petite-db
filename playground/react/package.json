@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "petite-db": "^0.0.2",
+    "petite-db": "^0.0.5",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
