@@ -40,21 +40,22 @@ const db = new PetiteDB({ dbName: 'xxx', sotreName: 'xxxStore' })
 db.setItem('test1', '我是第一个测试值')
 
 db.getItem('test2', '我是第一个测试值').then((res) => {
-	console.log('当前test2的值：', res)
+  console.log('当前test2的值：', res)
 }).catch((err) => {
-	console.log('获取错误：', err)
+  console.log('获取错误：', err)
 })
 
 async function getTest3Value() {
   const res = await db.getItem('test3')
-	console.log('当前test3的值：', res)
+  console.log('当前test3的值：', res)
 }
 
 db.getItem('test2', '我是第二个测试值', (err, val) => {
-	if (err) {
+  if (err)
     console.log('获取错误：', err)
-	} else {
-		console.log('当前值：', val)
-	}
+
+  else
+    console.log('当前值：', val)
+
 })
 ```
