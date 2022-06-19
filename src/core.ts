@@ -1,4 +1,4 @@
-import type { Base, IEvent, IGetResult, IInitParams, IInitResult, IKeysResult, IMode, TValueType } from './types'
+import type { Base, IEvent, IGetResult, IInitParams, IInitResult, IKeysResult, ILengthResult, IMode, TValueType } from './types'
 
 class PetiteDB implements Base {
   #db: IDBDatabase | null
@@ -94,6 +94,17 @@ class PetiteDB implements Base {
       const request = transaction.getAllKeys()
       request.onsuccess = (e: Event) => {
         const { result } = e.target as IKeysResult
+        success(result)
+      }
+      request.onerror = error
+    }, callback)
+  }
+
+  length(callback?: Function) {
+    return this.#read('readonly', (transaction: IDBObjectStore, success: Function, error: IEvent) => {
+      const request = transaction.count()
+      request.onsuccess = (e: Event) => {
+        const { result } = e.target as ILengthResult
         success(result)
       }
       request.onerror = error

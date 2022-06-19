@@ -35,6 +35,12 @@ export interface Base {
    * @param callback The callback function to be executed after the keys are retrieved
    */
   keys(callback?: Function): string[] | unknown
+  /**
+   * Call it to return all keys length stored in the database
+   *
+   * @param callback The callback function to be executed after the keys length is retrieved
+   */
+  length(callback?: Function): number | unknown
 }
 /**
  * All value types
@@ -73,6 +79,8 @@ export type IInitResult = IResult<IDBDatabase>
 export type IGetResult = IResult<TValueType>
 
 export type IKeysResult = IResult<string[]>
+
+export type ILengthResult = IResult<Number>
 
 export type IMode = 'readwrite' | 'readonly'
 
