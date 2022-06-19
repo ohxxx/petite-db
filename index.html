@@ -23,14 +23,19 @@
       window.db.setItem('test4', new ArrayBuffer(10))
       window.db.setItem('test5', null)
       window.db.setItem('test5', undefined)
-      window.db.setItem('test5', 'xxx')
+      window.db.setItem('test5', 'xxx', (res) => {
+        console.log('xxx#test5 cb', res);
+      })
     }
 
     async function getData() {
       const test1 = await window.db.getItem('test1')
       console.log('xxx#getData 【test1】', test1);
-      const test2 = await window.db.getItem('test2')
-      console.log('xxx#getData 【test2】', test2);
+      window.db.getItem('test2', (err, res) => {
+        if (!err) {
+          console.log('xxx#cb getData 【test2】', res);
+        }
+      })
       const test3 = await window.db.getItem('test3')
       console.log('xxx#getData 【test3】', test3);
       window.db.getItem('test4').then((res) => {
@@ -53,6 +58,16 @@
         console.log('xxx#getAllKeys', res);
       })
     }
+
+    async function getLength() {
+      window.db.length((err, val) => {
+        if (!err) {
+          console.log('xxx#cb length', val);
+        }
+      })
+      const len = await window.db.length()
+      console.log('xxx#length', len);
+    }
   </script>
 
   <button onclick="addData()">添加数据</button>
@@ -60,6 +75,7 @@
   <button onclick="removeData()">删除数据</button>
   <button onclick="clearData()">清空数据</button>
   <button onclick="getAllKeys()">获取所有key</button>
+  <button onclick="getLength()">获取所有键的长度</button>
 
 </body>
 
