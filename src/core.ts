@@ -23,8 +23,9 @@ class PetiteDB implements Base {
         req.onupgradeneeded = (e: IDBVersionChangeEvent) => {
           const { result } = e.target as IInitResult
           const db = result
-          if (!db.objectStoreNames.contains(storeName))
+          if (!db.objectStoreNames.contains(storeName)) {
             db.createObjectStore(storeName, { keyPath: 'key' })
+          }
         }
         req.onsuccess = (e: Event) => {
           const { result } = e.target as IInitResult
@@ -41,13 +42,11 @@ class PetiteDB implements Base {
       const isFunction = (value: unknown) => value && typeof value === 'function'
       const txn = this.#db!.transaction([this.#storeName], mode).objectStore(this.#storeName)
       const success = (result: unknown) => {
-        if (isFunction(callback))
-          callback?.(null, result)
+        if (isFunction(callback)) { callback?.(null, result) }
         resolve(result)
       }
       const error = (ev: Event) => {
-        if (isFunction(callback))
-          callback?.(ev)
+        if (isFunction(callback)) { callback?.(ev) }
         reject(ev)
       }
       return request(txn, success, error)
